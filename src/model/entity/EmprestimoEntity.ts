@@ -1,4 +1,4 @@
-export class Emprestimo {
+export class EmprestimoEntity {
     id: number;
     livroId: number;
     usuarioId: number;

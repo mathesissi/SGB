@@ -1,4 +1,4 @@
-export class Pessoa {
+export class PessoaEntity {
     id: number;
     nome: string;
     email: string;

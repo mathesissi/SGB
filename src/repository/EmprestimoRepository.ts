@@ -1,7 +1,7 @@
-import { LivroEntity } from "../model/entity/LivroEntity";
+import { EmprestimoEntity } from "../model/entity/EmprestimoEntity";
 import { executarComandoSQL } from "../database/mysql";
 
-export class UsuarioRepository {
+export class EmprestimoRepository {
     constructor() {
         this.createTable();
     }
