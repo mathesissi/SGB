@@ -2,10 +2,18 @@ import { UsuarioEntity } from "../model/entity/UsuarioEntity";
 import { executarComandoSQL } from "../database/mysql";
 
 export class UsuarioRepository {
+    private static instance: UsuarioRepository;
+
     constructor() {
         this.createTable();
     }
 
+    public static getInstace(): UsuarioRepository {
+        if (!this.instance) {
+            this.instance = new UsuarioRepository();
+        }
+        return this.instance
+    }
     private async createTable() {
         const query = `CREATE TABLE IF NOT EXISTS biblioteca.usuario(
                         id NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -72,15 +80,15 @@ export class UsuarioRepository {
                 resolve(resultado);
             });
         } catch (err: any) {
-            console.error(`Não foi possivel atualizar o email`, err);
+            console.error(`Não foi possivel atualizar a senha`, err);
             throw err;
         }
     }
 
     async deleteUsuario(usuario: UsuarioEntity): Promise<UsuarioEntity> {
-        const query = "DELETE FROM biblioteca.usuario WHERE id = ?";
+        const query = "DELETE FROM biblioteca.usuario WHERE id = ? AND senha =?";
         try {
-            const resultado = await executarComandoSQL(query, [usuario.id])
+            const resultado = await executarComandoSQL(query, [usuario.id, usuario.senha])
             console.log("Usuario deletado com sucesso: ", usuario);
             return new Promise<UsuarioEntity>((resolve) => {
                 resolve(resultado);

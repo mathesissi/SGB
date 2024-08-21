@@ -2,16 +2,24 @@ import { PessoaEntity } from "../model/entity/PessoaEntity";
 import { executarComandoSQL } from "../database/mysql";
 
 export class PessoaRepository {
-    constructor() {
+    private static instance: PessoaRepository;
+    private constructor() {
         this.createTable();
     }
 
+    public static getInstace(): PessoaRepository {
+        if (!this.instance) {
+            this.instance = new PessoaRepository();
+        }
+        return this.instance
+    }
+
     private async createTable() {
-        const query = `CREATE TABLE IF NOT EXISTS biblioteca.pessoa(
-                        id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        const query = `CREATE TABLE IF NOT EXISTS biblioteca.pessoa (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
                         nome VARCHAR(255) NOT NULL,
                         email VARCHAR(255) NOT NULL
-                        )`;
+);`;
         try {
             const resultado = await executarComandoSQL(query, []);
             console.log("Sucesso ao criar tabela Pessoa")

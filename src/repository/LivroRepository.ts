@@ -2,10 +2,18 @@ import { LivroEntity } from "../model/entity/LivroEntity";
 import { executarComandoSQL } from "../database/mysql";
 
 export class LivroRepository {
+    private static instance: LivroRepository;
+
     constructor() {
         this.createTable();
     }
 
+    public static getInstace(): LivroRepository {
+        if (!this.instance) {
+            this.instance = new LivroRepository();
+        }
+        return this.instance
+    }
     private async createTable() {
         const query = `CREATE TABLE IF NOT EXISTS biblioteca.livro(
                         id NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -39,10 +47,37 @@ export class LivroRepository {
 
     async filterById(livro: LivroEntity): Promise<LivroEntity> {
         try {
-            const query = "SELECT * FROM biblioteca.livro WHERE id = ? OR name ";
-            const resultado = await executarComandoSQL(query, [livro.id, livro.titulo]);
+            const query = "SELECT * FROM biblioteca.livro WHERE id = ?";
+            const resultado = await executarComandoSQL(query, [livro.id]);
             console.log("Livro localizado com sucesso: ", resultado);
             return new Promise<LivroEntity>((resolve) => {
+                resolve(resultado);
+            });
+        } catch (err) {
+            console.error(`Não foi possivel consultar o livro: ${livro.id}`, err);
+            throw err;
+        }
+    }
+    async filterByTitulo(livro: LivroEntity): Promise<LivroEntity> {
+        try {
+            const query = "SELECT * FROM biblioteca.livro WHERE titulo = ?";
+            const resultado = await executarComandoSQL(query, [livro.titulo]);
+            console.log("Livro localizado com sucesso: ", resultado);
+            return new Promise<LivroEntity>((resolve) => {
+                resolve(resultado);
+            });
+        } catch (err) {
+            console.error(`Não foi possivel consultar o livro: ${livro.id}`, err);
+            throw err;
+        }
+    }
+
+    async filterByAutor(livro: LivroEntity): Promise<LivroEntity[]> {
+        try {
+            const query = "SELECT * FROM biblioteca.livro WHERE autor = ?";
+            const resultado: LivroEntity[] = await executarComandoSQL(query, [livro.autor]);
+            console.log("Livros encontrados com sucesso: ", resultado);
+            return new Promise<LivroEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
@@ -65,15 +100,15 @@ export class LivroRepository {
     }
 
     async updateLivro(livro: LivroEntity): Promise<LivroEntity> {
-        const query = "UPDATE biblioteca.livros SET dataDevolucao = ? WHERE id = ?";
+        const query = "UPDATE biblioteca.livros SET autor = ?, titulo = ?, categoriaId = ? WHERE id = ?";
         try {
-            const resultado = await executarComandoSQL(query, [livro.da])
+            const resultado = await executarComandoSQL(query, [livro.autor, livro.titulo, livro.id]);
             console.log("Livro atualizado com sucesso ");
             return new Promise<LivroEntity>((resolve) => {
                 resolve(resultado);
             });
         } catch (err: any) {
-            console.error(`Não foi possivel atualizar livros`, err);
+            console.error(`Não foi possivel atualizar livro`, err);
             throw err;
         }
     }
@@ -87,7 +122,7 @@ export class LivroRepository {
                 resolve(resultado);
             });
         } catch (err: any) {
-            console.error(`Não foi possivel deletar o livros de id: ${livros.id}`, err);
+            console.error(`Não foi possivel deletar o livro`, err);
             throw err;
         }
     }

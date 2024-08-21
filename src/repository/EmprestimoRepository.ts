@@ -2,10 +2,18 @@ import { EmprestimoEntity } from "../model/entity/EmprestimoEntity";
 import { executarComandoSQL } from "../database/mysql";
 
 export class EmprestimoRepository {
+    private static instance: EmprestimoRepository;
+
     constructor() {
         this.createTable();
     }
 
+    public static getInstace(): EmprestimoRepository {
+        if (!this.instance) {
+            this.instance = new EmprestimoRepository();
+        }
+        return this.instance
+    }
     private async createTable() {
         const query = `CREATE TABLE IF NOT EXISTS biblioteca.emprestimo(
                         id NOT NULL AUTO_INCREMENT PRIMARY KEY,
