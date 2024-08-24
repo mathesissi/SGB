@@ -23,9 +23,12 @@ class CategoriaService {
                 throw new Error("Dado incorreto, verificar se é 'string'");
             }
             if (!nome) {
-                throw new Error("É necesario inserir um nome");
+                throw new Error("É necessario inserir um nome");
             }
-            const verificarCategoria = yield this.categoriaRepository.filterByName(categoriaData);
+            const verificarCategoria = yield this.categoriaRepository.filterByName(nome);
+            if (verificarCategoria.length > 0) {
+                throw new Error("Essa  categoria já está cadastrada");
+            }
             const novaCategoria = this.categoriaRepository.insertCategoria(new CategoriaEntity_1.CategoriaEntity(undefined, nome));
             console.log("Service - Insert ", novaCategoria);
             return novaCategoria;
@@ -35,6 +38,9 @@ class CategoriaService {
         return __awaiter(this, void 0, void 0, function* () {
             const id = categoriaData;
             const categoria = yield this.categoriaRepository.filterById(categoriaData);
+            if (categoria.length === 0) {
+                throw new Error("Categoria não encontrada");
+            }
             console.log("Service - Filter ID ");
             return categoria;
         });
@@ -43,6 +49,9 @@ class CategoriaService {
         return __awaiter(this, void 0, void 0, function* () {
             const nome = categoriaData;
             const categoria = yield this.categoriaRepository.filterByName(categoriaData);
+            if (categoria.length === 0) {
+                throw new Error("Categoria não encontrada");
+            }
             console.log("Service - Filter Nome ");
             return categoria;
         });
@@ -71,6 +80,10 @@ class CategoriaService {
         return __awaiter(this, void 0, void 0, function* () {
             const { id, nome } = categoriaData;
             const categoria = new CategoriaEntity_1.CategoriaEntity(id, nome);
+            const verificarCategoria = yield this.listarCategoriaPorId(id);
+            if (verificarCategoria.length === 0) {
+                throw new Error("Categoria não existente");
+            }
             yield this.categoriaRepository.deleteCategoria(categoriaData);
             console.log("Service - Delete ");
             return categoria;

@@ -74,7 +74,7 @@ export class CategoriaController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const categoria: CategoriaEntity = await this.categoriaService.listarCategoriaPorNome(nome);
+            const categoria: CategoriaEntity[] = await this.categoriaService.listarCategoriaPorNome(nome);
             return success(200, new BasicResponseDto("Categoria encontrada com sucesso!", categoria));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));

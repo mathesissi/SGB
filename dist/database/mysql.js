@@ -10,7 +10,7 @@ const dbConfig = {
     port: 3306,
     user: 'root',
     password: '',
-    database: 'biblioteca'
+    database: 'sgb'
 };
 const mysqlConnection = mysql2_1.default.createConnection(dbConfig);
 mysqlConnection.connect((err) => {

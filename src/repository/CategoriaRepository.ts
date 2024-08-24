@@ -3,8 +3,7 @@ import { CategoriaEntity } from "../model/entity/CategoriaEntity";
 
 export class CategoriaRepository {
     private static instance: CategoriaRepository;
-
-    private construtor() {
+    private constructor() {
         this.createTable();
     }
 
@@ -16,13 +15,13 @@ export class CategoriaRepository {
     }
 
     private async createTable() {
-        const query = `CREATE TABLE IF NOT EXISTS biblioteca.categoria (
-                        id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+        const query = `CREATE TABLE IF NOT EXISTS sgb.categoria (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
                         nome VARCHAR(255) NOT NULL
                         )`;
         try {
             const resultado = await executarComandoSQL(query, []);
-            console.log("Sucesso ao criar tabela Curso")
+            console.log("Sucesso ao criar tabela Categoria", resultado)
         }
         catch (err) {
             console.error('Error');
@@ -30,8 +29,9 @@ export class CategoriaRepository {
     }
 
     async insertCategoria(categoria: CategoriaEntity): Promise<CategoriaEntity> {
+        const query = "INSERT INTO sgb.categoria (nome) VALUES (?)"
         try {
-            const resultado = await executarComandoSQL("INSERT INTO biblioteca.categoria (nome) VALUES (?)", [categoria.id, categoria.nome]);
+            const resultado = await executarComandoSQL(query, [categoria.nome]);
             console.log("Categoria criadao com sucesso: ", resultado.insertId);
             categoria.id = resultado.insertId;
             return new Promise<CategoriaEntity>((resolve) => {
@@ -42,35 +42,36 @@ export class CategoriaRepository {
             throw err
         }
     }
-    async filterById(categoria: CategoriaEntity): Promise<CategoriaEntity> {
+    async filterById(id: number): Promise<CategoriaEntity[]> {
+        const query = "SELECT * FROM sgb.categoria WHERE id = ? ";
         try {
-            const query = "SELECT * FROM biblioteca.categoria WHERE id = ? ";
-            const resultado = await executarComandoSQL(query, [categoria.id]);
+            const resultado = await executarComandoSQL(query, [id]);
             console.log("Categoria localizada com sucesso: ", resultado);
-            return new Promise<CategoriaEntity>((resolve) => {
+            return new Promise<CategoriaEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
-            console.error(`Não foi possivel localizar a categoria: ${categoria.id}`, err);
+            console.error(`Não foi possivel localizar a categoria: ${id}`, err);
             throw err;
         }
     }
-    async filterByName(categoria: CategoriaEntity): Promise<CategoriaEntity> {
+
+    async filterByName(nome: string): Promise<CategoriaEntity[]> {
         try {
-            const query = "SELECT * FROM biblioteca.categoria WHERE nome = ? ";
-            const resultado = await executarComandoSQL(query, [categoria.nome]);
+            const query = "SELECT * FROM sgb.categoria WHERE nome = ? ";
+            const resultado = await executarComandoSQL(query, [nome]);
             console.log("Categoria localizada com sucesso: ", resultado);
-            return new Promise<CategoriaEntity>((resolve) => {
+            return new Promise<CategoriaEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
-            console.error(`Não foi possivel localizar a categoria: ${categoria.nome}`, err);
+            console.error(`Não foi possivel localizar a categoria: ${nome}`, err);
             throw err;
         }
     }
 
     async getAll(): Promise<CategoriaEntity[]> {
-        const query = "SELECT * FROM biblioteca.categoria";
+        const query = "SELECT * FROM sgb.categoria";
         try {
             const resultado: CategoriaEntity[] = await executarComandoSQL(query, []);
             return new Promise<CategoriaEntity[]>((resolve) => {
@@ -82,12 +83,12 @@ export class CategoriaRepository {
         }
     }
 
-    async updateCategoria(categoria: CategoriaEntity): Promise<CategoriaEntity> {
-        const query = "UPDATE biblioteca.categoria SET nome = ? WHERE id = ?";
+    async updateCategoria(categoria: CategoriaEntity): Promise<CategoriaEntity[]> {
+        const query = "UPDATE sgb.categoria SET nome = ? WHERE id = ?";
         try {
-            const resultado = await executarComandoSQL(query, [categoria.id, categoria.nome])
+            const resultado = await executarComandoSQL(query, [categoria.nome, categoria.id])
             console.log("Categoria atualizada com sucesso: ", categoria);
-            return new Promise<CategoriaEntity>((resolve) => {
+            return new Promise<CategoriaEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err: any) {
@@ -97,7 +98,7 @@ export class CategoriaRepository {
     }
 
     async deleteCategoria(categoria: CategoriaEntity): Promise<CategoriaEntity> {
-        const query = "DELETE FROM biblioteca.categoria WHERE id = ?";
+        const query = "DELETE FROM sgb.categoria WHERE id = ?";
         try {
             const resultado = await executarComandoSQL(query, [categoria.id])
             console.log("Categoria deletada com sucesso: ", categoria);

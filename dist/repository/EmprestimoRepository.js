@@ -23,14 +23,14 @@ class EmprestimoRepository {
     }
     createTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = `CREATE TABLE IF NOT EXISTS biblioteca.emprestimo(
-                        id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            const query = `CREATE TABLE IF NOT EXISTS sgb.emprestimo(
+                        id INT PRIMARY KEY AUTO_INCREMENT,
                         livroId INT NOT NULL,
                         usuarioId INT NOT NULL,
-                        dataEmpresotimo Date NOT NULL,
+                        dataEmprestimo Date NOT NULL,
                         dataDevolucao Date NOT NULL,
-                        FOREiGN KEY (livroId) REFERENCES biblioteca.livro(id),
-                        FOREiGN KEY (usuarioID) REFERENCES biblioteca.usuario(id)
+                        FOREiGN KEY (livroId) REFERENCES sgb.livro(id),
+                        FOREiGN KEY (usuarioID) REFERENCES sgb.usuario(id)
                         )`;
             try {
                 const resultado = yield (0, mysql_1.executarComandoSQL)(query, []);
@@ -43,8 +43,9 @@ class EmprestimoRepository {
     }
     insertEmprestimo(emprestimo) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = "INSERT INTO sgb.Emprestimo (livroID, usuarioId, dataEmprestimo, dataDevolucao) VALUES (?, ?, ?, ?)";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)("INSERT INTO biblioteca.Emprestimo (livroID, usuarioId, dataEmprestimo, dataDevolucao) VALUES (?, ?, ?, ?)", [emprestimo.livroId, emprestimo.usuarioId, emprestimo.dataEmprestimo, emprestimo.dataDevolucao]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [emprestimo.livroId, emprestimo.usuarioId, emprestimo.dataEmprestimo, emprestimo.dataDevolucao]);
                 console.log("Emprestimo realizado com sucesso: ", resultado.insertId);
                 emprestimo.id = resultado.insertId;
                 return new Promise((resolve) => {
@@ -57,25 +58,57 @@ class EmprestimoRepository {
             }
         });
     }
-    filterById(emprestimo) {
+    filterById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const query = "SELECT * FROM biblioteca.emprestimo WHERE id = ? ";
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [emprestimo.id]);
+                const query = "SELECT * FROM sgb.emprestimo WHERE id = ? ";
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [id]);
                 console.log("Emprestimo localizado com sucesso: ", resultado);
                 return new Promise((resolve) => {
                     resolve(resultado);
                 });
             }
             catch (err) {
-                console.error(`Não foi possivel consultar emprestimo de ID: ${emprestimo.id}`, err);
+                console.error(`Não foi possivel consultar emprestimo de ID: ${id}`, err);
+                throw err;
+            }
+        });
+    }
+    filterByUsuario(idUsuario) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const query = "SELECT * FROM sgb.emprestimo WHERE usuarioId = ? ";
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [idUsuario]);
+                console.log("Emprestimo localizado com sucesso: ", resultado);
+                return new Promise((resolve) => {
+                    resolve(resultado);
+                });
+            }
+            catch (err) {
+                console.error(`Não foi possivel consultar emprestimo por usuario de ID: ${idUsuario}`, err);
+                throw err;
+            }
+        });
+    }
+    filterByLivro(idLivro) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const query = "SELECT * FROM sgb.emprestimo WHERE livroId = ? ";
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [idLivro]);
+                console.log("Emprestimo localizado com sucesso: ", resultado);
+                return new Promise((resolve) => {
+                    resolve(resultado);
+                });
+            }
+            catch (err) {
+                console.error(`Não foi possivel consultar emprestimo por Livro de id: ${idLivro}`, err);
                 throw err;
             }
         });
     }
     getAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "SELECT * FROM biblioteca.emprestimo";
+            const query = "SELECT * FROM sgb.emprestimo";
             try {
                 const resultado = yield (0, mysql_1.executarComandoSQL)(query, []);
                 return new Promise((resolve) => {
@@ -90,9 +123,9 @@ class EmprestimoRepository {
     }
     updateEmprestimo(emprestimo) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "UPDATE biblioteca.emprestimo SET dataDevolucao = ? WHERE id = ?";
+            const query = "UPDATE sgb.emprestimo SET dataDevolucao = ? WHERE id = ?";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [emprestimo.dataDevolucao]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [emprestimo.dataDevolucao, emprestimo.id]);
                 console.log("Emprestimo atualizado com sucesso ");
                 return new Promise((resolve) => {
                     resolve(resultado);
@@ -106,7 +139,7 @@ class EmprestimoRepository {
     }
     deleteEmprestimo(emprestimo) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "DELETE FROM biblioteca.emprestimo WHERE id = ?";
+            const query = "DELETE FROM sgb.emprestimo WHERE id = ?";
             try {
                 const resultado = yield (0, mysql_1.executarComandoSQL)(query, [emprestimo.id]);
                 console.log("Emprestimo deletado com sucesso: ", emprestimo);

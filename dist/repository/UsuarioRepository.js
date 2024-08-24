@@ -23,11 +23,11 @@ class UsuarioRepository {
     }
     createTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = `CREATE TABLE IF NOT EXISTS biblioteca.usuario(
-                        id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            const query = `CREATE TABLE IF NOT EXISTS sgb.usuario(
+                        id INT PRIMARY KEY AUTO_INCREMENT,
                         idPessoa INT NOT NULL,
                         senha VARCHAR(200) NOT NULL,
-                        FOREiGN KEY (idPessoa) REFERENCES biblioteca.pessoa(id)
+                        FOREiGN KEY (idPessoa) REFERENCES sgb.pessoa(id)
                         )`;
             try {
                 const resultado = yield (0, mysql_1.executarComandoSQL)(query, []);
@@ -40,8 +40,9 @@ class UsuarioRepository {
     }
     insertUsuario(usuario) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = "INSERT INTO sgb.usuario (idPessoa, senha) VALUES (?, ?)";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)("INSERT INTO biblioteca.usuario (idPessoa, senha) VALUES (?, ?)", [usuario.idPessoa, usuario.senha]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [usuario.idPessoa, usuario.senha]);
                 console.log("Usuario inserido com sucesso: ", resultado.insertId);
                 usuario.id = resultado.insertId;
                 return new Promise((resolve) => {
@@ -54,25 +55,41 @@ class UsuarioRepository {
             }
         });
     }
-    filterById(usuario) {
+    filterById(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = "SELECT * FROM sgb.usuario WHERE id = ? ";
             try {
-                const query = "SELECT * FROM biblioteca.usuario WHERE id = ? ";
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [usuario.id]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [id]);
                 console.log("Usuario localizado com sucesso: ", resultado);
                 return new Promise((resolve) => {
                     resolve(resultado);
                 });
             }
             catch (err) {
-                console.error(`Não foi possivel localizar usuario de ID: ${usuario.id}`, err);
+                console.error(`Não foi possivel localizar usuario de ID: ${id}`, err);
+                throw err;
+            }
+        });
+    }
+    filterByIdPessoa(idPessoa) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = "SELECT * FROM sgb.usuario WHERE idPessoa = ? ";
+            try {
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [idPessoa]);
+                console.log("Usuario localizado com sucesso: ", resultado);
+                return new Promise((resolve) => {
+                    resolve(resultado);
+                });
+            }
+            catch (err) {
+                console.error(`Não foi possivel localizar usuario de ID: ${idPessoa}`, err);
                 throw err;
             }
         });
     }
     getAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "SELECT * FROM biblioteca.usuario";
+            const query = "SELECT * FROM sgb.usuario";
             try {
                 const resultado = yield (0, mysql_1.executarComandoSQL)(query, []);
                 return new Promise((resolve) => {
@@ -87,9 +104,9 @@ class UsuarioRepository {
     }
     updateSenha(usuario) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "UPDATE biblioteca.usuario SET senha = ? WHERE id = ?";
+            const query = "UPDATE sgb.usuario SET senha = ? WHERE id = ?";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [usuario.senha]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [usuario.senha, usuario.id]);
                 console.log("Senha atualizada com sucesso ");
                 return new Promise((resolve) => {
                     resolve(resultado);
@@ -103,9 +120,9 @@ class UsuarioRepository {
     }
     deleteUsuario(usuario) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "DELETE FROM biblioteca.usuario WHERE id = ? AND senha =?";
+            const query = "DELETE FROM sgb.usuario WHERE id = ? AND idPessoa =?";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [usuario.id, usuario.senha]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [usuario.id, usuario.idPessoa]);
                 console.log("Usuario deletado com sucesso: ", usuario);
                 return new Promise((resolve) => {
                     resolve(resultado);

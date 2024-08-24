@@ -10,25 +10,33 @@ export class CategoriaService {
             throw new Error("Dado incorreto, verificar se é 'string'");
         }
         if (!nome) {
-            throw new Error("É necesario inserir um nome");
+            throw new Error("É necessario inserir um nome");
         }
-        const verificarCategoria = await this.categoriaRepository.filterByName(categoriaData);
-
+        const verificarCategoria = await this.categoriaRepository.filterByName(nome);
+        if (verificarCategoria.length > 0) {
+            throw new Error("Essa  categoria já está cadastrada");
+        }
         const novaCategoria = this.categoriaRepository.insertCategoria(new CategoriaEntity(undefined, nome));
         console.log("Service - Insert ", novaCategoria);
         return novaCategoria;
     }
 
-    async listarCategoriaPorId(categoriaData: any): Promise<CategoriaEntity> {
+    async listarCategoriaPorId(categoriaData: any): Promise<CategoriaEntity[]> {
         const id: number = categoriaData;
         const categoria = await this.categoriaRepository.filterById(categoriaData);
+        if (categoria.length === 0) {
+            throw new Error("Categoria não encontrada")
+        }
         console.log("Service - Filter ID ");
         return categoria;
     }
 
-    async listarCategoriaPorNome(categoriaData: any): Promise<CategoriaEntity> {
+    async listarCategoriaPorNome(categoriaData: any): Promise<CategoriaEntity[]> {
         const nome: string = categoriaData;
         const categoria = await this.categoriaRepository.filterByName(categoriaData);
+        if (categoria.length === 0) {
+            throw new Error("Categoria não encontrada");
+        }
         console.log("Service - Filter Nome ");
         return categoria;
     }
@@ -54,6 +62,10 @@ export class CategoriaService {
     async deletarCategoria(categoriaData: any): Promise<CategoriaEntity> {
         const { id, nome } = categoriaData;
         const categoria = new CategoriaEntity(id, nome)
+        const verificarCategoria = await this.listarCategoriaPorId(id)
+        if (verificarCategoria.length === 0) {
+            throw new Error("Categoria não existente");
+        }
         await this.categoriaRepository.deleteCategoria(categoriaData);
         console.log("Service - Delete ");
         return categoria;

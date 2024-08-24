@@ -60,7 +60,7 @@ export class LivroController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const livro = await this.livroService.listarLivroPorId(id);
+            const livro: LivroEntity[] = await this.livroService.listarLivroPorId(id);
             return success(200, new BasicResponseDto("Livro encontrada com sucesso!", livro));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));
@@ -74,7 +74,7 @@ export class LivroController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const livro: LivroEntity = await this.livroService.listarLivroPorTitulo(nome);
+            const livro: LivroEntity[] = await this.livroService.listarLivroPorTitulo(nome);
             return success(200, new BasicResponseDto("Livro encontrada com sucesso!", livro));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));

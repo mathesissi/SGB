@@ -60,7 +60,7 @@ export class PessoaController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const pessoa = await this.pessoaService.listarPessoaPorId(id);
+            const pessoa: PessoaEntity[] = await this.pessoaService.listarPessoaPorId(id);
             return success(200, new BasicResponseDto("Pessoa encontrada com sucesso!", pessoa));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));
@@ -74,7 +74,7 @@ export class PessoaController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const pessoas: PessoaEntity = await this.pessoaService.listarPessoaPorEmail(email);
+            const pessoas: PessoaEntity[] = await this.pessoaService.listarPessoaPorEmail(email);
             return success(200, new BasicResponseDto("Pessoa encontrada com sucesso!", pessoas));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));
@@ -88,7 +88,7 @@ export class PessoaController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const pessoa: PessoaEntity = await this.pessoaService.listarPessoaPorNome(nome);
+            const pessoa: PessoaEntity[] = await this.pessoaService.listarPessoaPorNome(nome);
             return success(200, new BasicResponseDto("Pessoa encontrada com sucesso!", pessoa));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));

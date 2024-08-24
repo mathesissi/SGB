@@ -22,14 +22,18 @@ class LivroService {
         return __awaiter(this, void 0, void 0, function* () {
             const { titulo, autor, categoriaId } = livroData;
             if (typeof titulo !== 'string' || typeof autor !== 'string' || typeof categoriaId !== 'number') {
-                throw new Error("Dados incorretos, verificar se é 'string' ou 'number'");
+                throw new Error("Dados incorretos: Insira os dados em seus devidos formatos");
             }
             if (!titulo || !autor || !categoriaId) {
-                throw new Error("É necesario inserir titulo, autor e categoriaId");
+                throw new Error("Dados incompletos: Verifique se todos os campos foram preechidos");
+            }
+            const verificarLivro = yield this.livroRepository.filterByTitulo(titulo);
+            if (verificarLivro.length > 0) {
+                throw new Error("Esse livro já existe!");
             }
             const verificarCategoria = yield this.categoriaService.listarCategoriaPorId(categoriaId);
             if (!verificarCategoria) {
-                throw new Error("Essa categoria nao existe!!");
+                throw new Error("Essa categoria não existe!");
             }
             const novoLivro = this.livroRepository.insertLivro(new LivroEntity_1.LivroEntity(undefined, titulo, autor, categoriaId));
             console.log("Service - Insert ", novoLivro);
@@ -40,6 +44,9 @@ class LivroService {
         return __awaiter(this, void 0, void 0, function* () {
             const id = livroData;
             const livro = yield this.livroRepository.filterById(livroData);
+            if (livro.length === 0) {
+                throw new Error("Livro não econtrado");
+            }
             console.log("Service - Filter ID ", livro);
             return livro;
         });
@@ -47,7 +54,10 @@ class LivroService {
     listarLivroPorTitulo(livroData) {
         return __awaiter(this, void 0, void 0, function* () {
             const titulo = livroData;
-            const livro = yield this.livroRepository.filterById(livroData);
+            const livro = yield this.livroRepository.filterByTitulo(livroData);
+            if (livro.length === 0) {
+                throw new Error("Livro não econtrado");
+            }
             console.log("Service - Filter Name ", livro);
             return livro;
         });
@@ -55,7 +65,10 @@ class LivroService {
     listarLivroPorAutor(livroData) {
         return __awaiter(this, void 0, void 0, function* () {
             const autor = livroData;
-            const livros = this.livroRepository.filterByAutor(livroData);
+            const livros = yield this.livroRepository.filterByAutor(livroData);
+            if (livros.length === 0) {
+                throw new Error("Livros não econtrado");
+            }
             console.log("Service - Filter All ", livros);
             return livros;
         });
@@ -84,6 +97,10 @@ class LivroService {
         return __awaiter(this, void 0, void 0, function* () {
             const { id, titulo, autor, categoriaId } = livroData;
             const usuario = new LivroEntity_1.LivroEntity(id, titulo, autor, categoriaId);
+            const verificarLivro = yield this.listarLivroPorId(id);
+            if (verificarLivro.length === 0) {
+                throw new Error("Livro não encontrado");
+            }
             yield this.livroRepository.deleteLivro(livroData);
             console.log("Service - Delete ", usuario);
             return usuario;

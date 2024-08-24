@@ -60,7 +60,7 @@ export class EmprestimoController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const emprestimo = await this.emprestimoService.listarEmprestimo(id);
+            const emprestimo: EmprestimoEntity[] = await this.emprestimoService.listarEmprestimo(id);
             return success(200, new BasicResponseDto("Emprestimo encontrada com sucesso!", emprestimo));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));

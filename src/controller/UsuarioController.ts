@@ -60,7 +60,7 @@ export class UsuarioController extends Controller {
         @Res() success: TsoaResponse<200, BasicResponseDto>
     ): Promise<void> {
         try {
-            const usuario = await this.usuarioService.listarUsuarioPorId(id);
+            const usuario: UsuarioEntity[] = await this.usuarioService.listarUsuarioPorId(id);
             return success(200, new BasicResponseDto("Usuario encontrado com sucesso!", usuario));
         } catch (error: any) {
             return notFound(400, new BasicResponseDto(error.message, undefined));

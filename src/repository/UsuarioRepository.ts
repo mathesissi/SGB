@@ -1,10 +1,11 @@
 import { UsuarioEntity } from "../model/entity/UsuarioEntity";
 import { executarComandoSQL } from "../database/mysql";
 
+
 export class UsuarioRepository {
     private static instance: UsuarioRepository;
 
-    constructor() {
+    private constructor() {
         this.createTable();
     }
 
@@ -15,11 +16,11 @@ export class UsuarioRepository {
         return this.instance
     }
     private async createTable() {
-        const query = `CREATE TABLE IF NOT EXISTS biblioteca.usuario(
-                        id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        const query = `CREATE TABLE IF NOT EXISTS sgb.usuario(
+                        id INT PRIMARY KEY AUTO_INCREMENT,
                         idPessoa INT NOT NULL,
                         senha VARCHAR(200) NOT NULL,
-                        FOREiGN KEY (idPessoa) REFERENCES biblioteca.pessoa(id)
+                        FOREiGN KEY (idPessoa) REFERENCES sgb.pessoa(id)
                         )`;
         try {
             const resultado = await executarComandoSQL(query, []);
@@ -31,8 +32,9 @@ export class UsuarioRepository {
     }
 
     async insertUsuario(usuario: UsuarioEntity): Promise<UsuarioEntity> {
+        const query = "INSERT INTO sgb.usuario (idPessoa, senha) VALUES (?, ?)"
         try {
-            const resultado = await executarComandoSQL("INSERT INTO biblioteca.usuario (idPessoa, senha) VALUES (?, ?)", [usuario.idPessoa, usuario.senha]);
+            const resultado = await executarComandoSQL(query, [usuario.idPessoa, usuario.senha]);
             console.log("Usuario inserido com sucesso: ", resultado.insertId);
             usuario.id = resultado.insertId;
             return new Promise<UsuarioEntity>((resolve) => {
@@ -44,22 +46,36 @@ export class UsuarioRepository {
         }
     }
 
-    async filterById(usuario: UsuarioEntity): Promise<UsuarioEntity> {
+    async filterById(id: number): Promise<UsuarioEntity[]> {
+        const query = "SELECT * FROM sgb.usuario WHERE id = ? ";
         try {
-            const query = "SELECT * FROM biblioteca.usuario WHERE id = ? ";
-            const resultado = await executarComandoSQL(query, [usuario.id]);
+            const resultado = await executarComandoSQL(query, [id]);
             console.log("Usuario localizado com sucesso: ", resultado);
-            return new Promise<UsuarioEntity>((resolve) => {
+            return new Promise<UsuarioEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
-            console.error(`Não foi possivel localizar usuario de ID: ${usuario.id}`, err);
+            console.error(`Não foi possivel localizar usuario de ID: ${id}`, err);
+            throw err;
+        }
+    }
+
+    async filterByIdPessoa(idPessoa: number): Promise<UsuarioEntity[]> {
+        const query = "SELECT * FROM sgb.usuario WHERE idPessoa = ? ";
+        try {
+            const resultado = await executarComandoSQL(query, [idPessoa]);
+            console.log("Usuario localizado com sucesso: ", resultado);
+            return new Promise<UsuarioEntity[]>((resolve) => {
+                resolve(resultado);
+            });
+        } catch (err) {
+            console.error(`Não foi possivel localizar usuario de ID: ${idPessoa}`, err);
             throw err;
         }
     }
 
     async getAll(): Promise<UsuarioEntity[]> {
-        const query = "SELECT * FROM biblioteca.usuario";
+        const query = "SELECT * FROM sgb.usuario";
         try {
             const resultado: UsuarioEntity[] = await executarComandoSQL(query, []);
             return new Promise<UsuarioEntity[]>((resolve) => {
@@ -72,9 +88,9 @@ export class UsuarioRepository {
     }
 
     async updateSenha(usuario: UsuarioEntity): Promise<UsuarioEntity> {
-        const query = "UPDATE biblioteca.usuario SET senha = ? WHERE id = ?";
+        const query = "UPDATE sgb.usuario SET senha = ? WHERE id = ?";
         try {
-            const resultado = await executarComandoSQL(query, [usuario.senha])
+            const resultado = await executarComandoSQL(query, [usuario.senha, usuario.id])
             console.log("Senha atualizada com sucesso ");
             return new Promise<UsuarioEntity>((resolve) => {
                 resolve(resultado);
@@ -86,9 +102,9 @@ export class UsuarioRepository {
     }
 
     async deleteUsuario(usuario: UsuarioEntity): Promise<UsuarioEntity> {
-        const query = "DELETE FROM biblioteca.usuario WHERE id = ? AND senha =?";
+        const query = "DELETE FROM sgb.usuario WHERE id = ? AND idPessoa =?";
         try {
-            const resultado = await executarComandoSQL(query, [usuario.id, usuario.senha])
+            const resultado = await executarComandoSQL(query, [usuario.id, usuario.idPessoa])
             console.log("Usuario deletado com sucesso: ", usuario);
             return new Promise<UsuarioEntity>((resolve) => {
                 resolve(resultado);

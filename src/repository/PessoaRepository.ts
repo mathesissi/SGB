@@ -15,23 +15,23 @@ export class PessoaRepository {
     }
 
     private async createTable() {
-        const query = `CREATE TABLE IF NOT EXISTS biblioteca.pessoa (
+        const query = `CREATE TABLE IF NOT EXISTS sgb.pessoa (
                         id INT PRIMARY KEY AUTO_INCREMENT,
                         nome VARCHAR(255) NOT NULL,
                         email VARCHAR(255) NOT NULL
-);`;
+)`;
         try {
             const resultado = await executarComandoSQL(query, []);
-            console.log("Sucesso ao criar tabela Pessoa")
-        }
-        catch (err) {
+            console.log("Sucesso ao criar tabela Pessoa", resultado)
+        } catch (err) {
             console.error('Error');
         }
     }
 
     async insertPessoa(pessoa: PessoaEntity): Promise<PessoaEntity> {
+        const query = "INSERT INTO sgb.pessoa (nome, email) VALUES (?,?)";
         try {
-            const resultado = await executarComandoSQL("INSERT INTO biblioteca.pessoa (nome, email) VALUES (?, ?)", [pessoa.nome, pessoa.email]);
+            const resultado = await executarComandoSQL(query, [pessoa.nome, pessoa.email]);
             console.log("Pessoa inserida com sucesso: ", resultado.insertId);
             pessoa.id = resultado.insertId;
             return new Promise<PessoaEntity>((resolve) => {
@@ -42,50 +42,51 @@ export class PessoaRepository {
             throw err
         }
     }
-    async filterById(pessoa: PessoaEntity): Promise<PessoaEntity> {
+
+    async filterById(id: number): Promise<PessoaEntity[]> {
+        const query = "SELECT * FROM sgb.pessoa WHERE id = ? ";
         try {
-            const query = "SELECT * FROM biblioteca.pessoa WHERE id = ? ";
-            const resultado = await executarComandoSQL(query, [pessoa.id]);
+            const resultado = await executarComandoSQL(query, [id]);
             console.log("Pessoa localizada com sucesso: ", resultado);
-            return new Promise<PessoaEntity>((resolve) => {
+            return new Promise<PessoaEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
-            console.error(`Não foi possivel localizar pessoa de ID: ${pessoa.id}`, err);
+            console.error(`Não foi possivel localizar pessoa de ID: ${id}`, err);
             throw err;
         }
     }
 
-    async filterByName(pessoa: PessoaEntity): Promise<PessoaEntity> {
+    async filterByName(nome: string): Promise<PessoaEntity[]> {
+        const query = "SELECT * FROM sgb.pessoa WHERE nome = ? ";
         try {
-            const query = "SELECT * FROM biblioteca.pessoa WHERE nome = ? ";
-            const resultado = await executarComandoSQL(query, [pessoa.nome]);
+            const resultado = await executarComandoSQL(query, [nome]);
             console.log("Pessoa localizada com sucesso: ", resultado);
-            return new Promise<PessoaEntity>((resolve) => {
+            return new Promise<PessoaEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
-            console.error(`Não foi possivel localizar pessoa com nome: ${pessoa.nome}`, err);
+            console.error(`Não foi possivel localizar pessoa com nome: ${nome}`, err);
             throw err;
         }
     }
 
-    async filterByEmail(pessoa: PessoaEntity): Promise<PessoaEntity> {
+    async filterByEmail(email: string): Promise<PessoaEntity[]> {
+        const query = "SELECT * FROM sgb.pessoa WHERE email = ? ";
         try {
-            const query = "SELECT * FROM biblioteca.pessoa WHERE email = ? ";
-            const resultado = await executarComandoSQL(query, [pessoa.email]);
+            const resultado = await executarComandoSQL(query, [email]);
             console.log("Pessoa localizada com sucesso: ", resultado);
-            return new Promise<PessoaEntity>((resolve) => {
+            return new Promise<PessoaEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
-            console.error(`Não foi possivel localizar pessoa com email: ${pessoa.email}`, err);
+            console.error(`Não foi possivel localizar pessoa com email`, err);
             throw err;
         }
     }
 
     async getAll(): Promise<PessoaEntity[]> {
-        const query = "SELECT * FROM biblioteca.pessoa";
+        const query = "SELECT * FROM sgb.pessoa";
         try {
             const resultado: PessoaEntity[] = await executarComandoSQL(query, []);
             return new Promise<PessoaEntity[]>((resolve) => {
@@ -98,12 +99,12 @@ export class PessoaRepository {
     }
 
     async updateEmail(pessoa: PessoaEntity): Promise<PessoaEntity> {
-        const query = "UPDATE biblioteca.pessoa SET email = ? WHERE id = ? OR name = ?";
+        const query = "UPDATE sgb.pessoa SET email = ? WHERE id = ?";
         try {
-            const resultado = await executarComandoSQL(query, [pessoa.id, pessoa.nome, pessoa.email])
+            const resultado = await executarComandoSQL(query, [pessoa.email, pessoa.id]);
             console.log("Email atualizado com sucesso: ", pessoa);
             return new Promise<PessoaEntity>((resolve) => {
-                resolve(resultado);
+                resolve(pessoa);
             });
         } catch (err: any) {
             console.error(`Não foi possivel atualizar o email`, err);
@@ -112,15 +113,15 @@ export class PessoaRepository {
     }
 
     async deletePessoa(pessoa: PessoaEntity): Promise<PessoaEntity> {
-        const query = "DELETE FROM biblioteca.pessoa WHERE id = ? or email = ?";
+        const query = "DELETE FROM sgb.pessoa WHERE email = ?";
         try {
-            const resultado = await executarComandoSQL(query, [pessoa.id, pessoa.email])
+            const resultado = await executarComandoSQL(query, [pessoa.email])
             console.log("Pessoa deletada com sucesso: ", pessoa);
             return new Promise<PessoaEntity>((resolve) => {
-                resolve(resultado);
+                resolve(pessoa);
             });
         } catch (err: any) {
-            console.error(`Não foi possivel deletar a pessoa de id: ${pessoa.id}`, err);
+            console.error(`Não foi possivel deletar a pessoa`, err);
             throw err;
         }
     }

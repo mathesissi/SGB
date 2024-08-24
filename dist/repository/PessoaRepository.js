@@ -23,14 +23,14 @@ class PessoaRepository {
     }
     createTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = `CREATE TABLE IF NOT EXISTS biblioteca.pessoa (
+            const query = `CREATE TABLE IF NOT EXISTS sgb.pessoa (
                         id INT PRIMARY KEY AUTO_INCREMENT,
                         nome VARCHAR(255) NOT NULL,
                         email VARCHAR(255) NOT NULL
-);`;
+)`;
             try {
                 const resultado = yield (0, mysql_1.executarComandoSQL)(query, []);
-                console.log("Sucesso ao criar tabela Pessoa");
+                console.log("Sucesso ao criar tabela Pessoa", resultado);
             }
             catch (err) {
                 console.error('Error');
@@ -39,8 +39,9 @@ class PessoaRepository {
     }
     insertPessoa(pessoa) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = "INSERT INTO sgb.pessoa (nome, email) VALUES (?,?)";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)("INSERT INTO biblioteca.pessoa (nome, email) VALUES (?, ?)", [pessoa.nome, pessoa.email]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.nome, pessoa.email]);
                 console.log("Pessoa inserida com sucesso: ", resultado.insertId);
                 pessoa.id = resultado.insertId;
                 return new Promise((resolve) => {
@@ -53,57 +54,57 @@ class PessoaRepository {
             }
         });
     }
-    filterById(pessoa) {
+    filterById(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = "SELECT * FROM sgb.pessoa WHERE id = ? ";
             try {
-                const query = "SELECT * FROM biblioteca.pessoa WHERE id = ? ";
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.id]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [id]);
                 console.log("Pessoa localizada com sucesso: ", resultado);
                 return new Promise((resolve) => {
                     resolve(resultado);
                 });
             }
             catch (err) {
-                console.error(`Não foi possivel localizar pessoa de ID: ${pessoa.id}`, err);
+                console.error(`Não foi possivel localizar pessoa de ID: ${id}`, err);
                 throw err;
             }
         });
     }
-    filterByName(pessoa) {
+    filterByName(nome) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = "SELECT * FROM sgb.pessoa WHERE nome = ? ";
             try {
-                const query = "SELECT * FROM biblioteca.pessoa WHERE nome = ? ";
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.nome]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [nome]);
                 console.log("Pessoa localizada com sucesso: ", resultado);
                 return new Promise((resolve) => {
                     resolve(resultado);
                 });
             }
             catch (err) {
-                console.error(`Não foi possivel localizar pessoa com nome: ${pessoa.nome}`, err);
+                console.error(`Não foi possivel localizar pessoa com nome: ${nome}`, err);
                 throw err;
             }
         });
     }
-    filterByEmail(pessoa) {
+    filterByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = "SELECT * FROM sgb.pessoa WHERE email = ? ";
             try {
-                const query = "SELECT * FROM biblioteca.pessoa WHERE email = ? ";
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.email]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [email]);
                 console.log("Pessoa localizada com sucesso: ", resultado);
                 return new Promise((resolve) => {
                     resolve(resultado);
                 });
             }
             catch (err) {
-                console.error(`Não foi possivel localizar pessoa com email: ${pessoa.email}`, err);
+                console.error(`Não foi possivel localizar pessoa com email`, err);
                 throw err;
             }
         });
     }
     getAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "SELECT * FROM biblioteca.pessoa";
+            const query = "SELECT * FROM sgb.pessoa";
             try {
                 const resultado = yield (0, mysql_1.executarComandoSQL)(query, []);
                 return new Promise((resolve) => {
@@ -118,12 +119,12 @@ class PessoaRepository {
     }
     updateEmail(pessoa) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "UPDATE biblioteca.pessoa SET email = ? WHERE id = ? OR name = ?";
+            const query = "UPDATE sgb.pessoa SET email = ? WHERE id = ?";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.id, pessoa.nome, pessoa.email]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.email, pessoa.id]);
                 console.log("Email atualizado com sucesso: ", pessoa);
                 return new Promise((resolve) => {
-                    resolve(resultado);
+                    resolve(pessoa);
                 });
             }
             catch (err) {
@@ -134,16 +135,16 @@ class PessoaRepository {
     }
     deletePessoa(pessoa) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = "DELETE FROM biblioteca.pessoa WHERE id = ? or email = ?";
+            const query = "DELETE FROM sgb.pessoa WHERE email = ?";
             try {
-                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.id, pessoa.email]);
+                const resultado = yield (0, mysql_1.executarComandoSQL)(query, [pessoa.email]);
                 console.log("Pessoa deletada com sucesso: ", pessoa);
                 return new Promise((resolve) => {
-                    resolve(resultado);
+                    resolve(pessoa);
                 });
             }
             catch (err) {
-                console.error(`Não foi possivel deletar a pessoa de id: ${pessoa.id}`, err);
+                console.error(`Não foi possivel deletar a pessoa`, err);
                 throw err;
             }
         });

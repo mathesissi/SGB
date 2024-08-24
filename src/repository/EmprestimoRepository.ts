@@ -4,7 +4,7 @@ import { executarComandoSQL } from "../database/mysql";
 export class EmprestimoRepository {
     private static instance: EmprestimoRepository;
 
-    constructor() {
+    private constructor() {
         this.createTable();
     }
 
@@ -15,14 +15,14 @@ export class EmprestimoRepository {
         return this.instance
     }
     private async createTable() {
-        const query = `CREATE TABLE IF NOT EXISTS biblioteca.emprestimo(
-                        id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        const query = `CREATE TABLE IF NOT EXISTS sgb.emprestimo(
+                        id INT PRIMARY KEY AUTO_INCREMENT,
                         livroId INT NOT NULL,
                         usuarioId INT NOT NULL,
-                        dataEmpresotimo Date NOT NULL,
+                        dataEmprestimo Date NOT NULL,
                         dataDevolucao Date NOT NULL,
-                        FOREiGN KEY (livroId) REFERENCES biblioteca.livro(id),
-                        FOREiGN KEY (usuarioID) REFERENCES biblioteca.usuario(id)
+                        FOREiGN KEY (livroId) REFERENCES sgb.livro(id),
+                        FOREiGN KEY (usuarioID) REFERENCES sgb.usuario(id)
                         )`;
         try {
             const resultado = await executarComandoSQL(query, []);
@@ -34,8 +34,9 @@ export class EmprestimoRepository {
     }
 
     async insertEmprestimo(emprestimo: EmprestimoEntity): Promise<EmprestimoEntity> {
+        const query = "INSERT INTO sgb.Emprestimo (livroID, usuarioId, dataEmprestimo, dataDevolucao) VALUES (?, ?, ?, ?)"
         try {
-            const resultado = await executarComandoSQL("INSERT INTO biblioteca.Emprestimo (livroID, usuarioId, dataEmprestimo, dataDevolucao) VALUES (?, ?, ?, ?)", [emprestimo.livroId, emprestimo.usuarioId, emprestimo.dataEmprestimo, emprestimo.dataDevolucao]);
+            const resultado = await executarComandoSQL(query, [emprestimo.livroId, emprestimo.usuarioId, emprestimo.dataEmprestimo, emprestimo.dataDevolucao]);
             console.log("Emprestimo realizado com sucesso: ", resultado.insertId);
             emprestimo.id = resultado.insertId;
             return new Promise<EmprestimoEntity>((resolve) => {
@@ -47,22 +48,50 @@ export class EmprestimoRepository {
         }
     }
 
-    async filterById(emprestimo: EmprestimoEntity): Promise<EmprestimoEntity> {
+    async filterById(id: number): Promise<EmprestimoEntity[]> {
         try {
-            const query = "SELECT * FROM biblioteca.emprestimo WHERE id = ? ";
-            const resultado = await executarComandoSQL(query, [emprestimo.id]);
+            const query = "SELECT * FROM sgb.emprestimo WHERE id = ? ";
+            const resultado = await executarComandoSQL(query, [id]);
             console.log("Emprestimo localizado com sucesso: ", resultado);
-            return new Promise<EmprestimoEntity>((resolve) => {
+            return new Promise<EmprestimoEntity[]>((resolve) => {
                 resolve(resultado);
             });
         } catch (err) {
-            console.error(`Não foi possivel consultar emprestimo de ID: ${emprestimo.id}`, err);
+            console.error(`Não foi possivel consultar emprestimo de ID: ${id}`, err);
+            throw err;
+        }
+    }
+
+    async filterByUsuario(idUsuario: number): Promise<EmprestimoEntity[]> {
+        try {
+            const query = "SELECT * FROM sgb.emprestimo WHERE usuarioId = ? ";
+            const resultado = await executarComandoSQL(query, [idUsuario]);
+            console.log("Emprestimo localizado com sucesso: ", resultado);
+            return new Promise<EmprestimoEntity[]>((resolve) => {
+                resolve(resultado);
+            });
+        } catch (err) {
+            console.error(`Não foi possivel consultar emprestimo por usuario de ID: ${idUsuario}`, err);
+            throw err;
+        }
+    }
+
+    async filterByLivro(idLivro: number): Promise<EmprestimoEntity[]> {
+        try {
+            const query = "SELECT * FROM sgb.emprestimo WHERE livroId = ? ";
+            const resultado = await executarComandoSQL(query, [idLivro]);
+            console.log("Emprestimo localizado com sucesso: ", resultado);
+            return new Promise<EmprestimoEntity[]>((resolve) => {
+                resolve(resultado);
+            });
+        } catch (err) {
+            console.error(`Não foi possivel consultar emprestimo por Livro de id: ${idLivro}`, err);
             throw err;
         }
     }
 
     async getAll(): Promise<EmprestimoEntity[]> {
-        const query = "SELECT * FROM biblioteca.emprestimo";
+        const query = "SELECT * FROM sgb.emprestimo";
         try {
             const resultado: EmprestimoEntity[] = await executarComandoSQL(query, []);
             return new Promise<EmprestimoEntity[]>((resolve) => {
@@ -75,9 +104,9 @@ export class EmprestimoRepository {
     }
 
     async updateEmprestimo(emprestimo: EmprestimoEntity): Promise<EmprestimoEntity> {
-        const query = "UPDATE biblioteca.emprestimo SET dataDevolucao = ? WHERE id = ?";
+        const query = "UPDATE sgb.emprestimo SET dataDevolucao = ? WHERE id = ?";
         try {
-            const resultado = await executarComandoSQL(query, [emprestimo.dataDevolucao])
+            const resultado = await executarComandoSQL(query, [emprestimo.dataDevolucao, emprestimo.id]);
             console.log("Emprestimo atualizado com sucesso ");
             return new Promise<EmprestimoEntity>((resolve) => {
                 resolve(resultado);
@@ -89,7 +118,7 @@ export class EmprestimoRepository {
     }
 
     async deleteEmprestimo(emprestimo: EmprestimoEntity): Promise<EmprestimoEntity> {
-        const query = "DELETE FROM biblioteca.emprestimo WHERE id = ?";
+        const query = "DELETE FROM sgb.emprestimo WHERE id = ?";
         try {
             const resultado = await executarComandoSQL(query, [emprestimo.id])
             console.log("Emprestimo deletado com sucesso: ", emprestimo);
